@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SnapSort AI — App Preview</title>
+<style>
+  :root {
+    --primary: #6C63FF;
+    --primary-dark: #4A43D0;
+    --secondary: #03DAC6;
+    --accent: #FFBE0B;
+    --success: #06D6A0;
+    --error: #FF6B6B;
+    --surface: #F8F9FE;
+    --card: #FFFFFF;
+    --text-1: #1A1A2E;
+    --text-2: #3D3D3D;
+    --text-3: #666666;
+    --text-muted: #9E9E9E;
+    --border: #E8E8F0;
+
+    /* Category colours */
+    --otp: #6C63FF;
+    --bills: #FF6B6B;
+    --receipts: #4ECDC4;
+    --memes: #FFBE0B;
+    --notes: #3A86FF;
+    --trading: #06D6A0;
+    --bank: #118AB2;
+    --tickets: #FF9F1C;
+    --shopping: #E63946;
+    --crypto: #F7931A;
+    --misc: #8D99AE;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: linear-gradient(135deg, #0F0C29, #302B63, #24243E);
+    min-height: 100vh;
+    padding: 40px 20px;
+    color: var(--text-1);
+  }
+
+  /* ── Page header ── */
+  .page-header {
+    text-align: center;
+    margin-bottom: 60px;
+  }
+  .page-header h1 {
+    font-size: 42px;
+    font-weight: 900;
+    color: #fff;
+    letter-spacing: -1px;
+  }
+  .page-header h1 span { color: var(--accent); }
+  .page-header p {
+    color: rgba(255,255,255,.6);
+    font-size: 17px;
+    margin-top: 10px;
+  }
+  .badge {
+    display: inline-block;
+    background: var(--primary);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-top: 12px;
+    letter-spacing: .6px;
+  }
+
+  /* ── Screens row ── */
+  .screens-row {
+    display: flex;
+    gap: 32px;
+    justify-content: center;
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+
+  /* ── Phone frame ── */
+  .phone {
+    width: 320px;
+    background: #111;
+    border-radius: 44px;
+    padding: 14px;
+    box-shadow:
+      0 0 0 2px #333,
+      0 40px 80px rgba(0,0,0,.6),
+      0 0 60px rgba(108,99,255,.2);
+    flex-shrink: 0;
+  }
+  .phone-screen {
+    border-radius: 32px;
+    overflow: hidden;
+    background: var(--surface);
+    min-height: 620px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+  .phone-notch {
+    width: 100px;
+    height: 28px;
+    background: #111;
+    border-radius: 0 0 16px 16px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 10;
+  }
+  .screen-label {
+    text-align: center;
+    color: rgba(255,255,255,.7);
+    font-size: 13px;
+    font-weight: 600;
+    margin-top: 14px;
+    letter-spacing: .4px;
+  }
+
+  /* ── Shared UI atoms ── */
+  .appbar {
+    background: var(--surface);
+    padding: 12px 16px 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+  }
+  .appbar-title {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--text-1);
+  }
+  .appbar-title .brand { color: var(--primary); }
+  .appbar-icons { display: flex; gap: 4px; }
+  .icon-btn {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    font-size: 17px;
+    color: var(--text-2);
+  }
+  .icon-btn:hover { background: var(--border); }
+
+  /* Category chips */
+  .chips-row {
+    display: flex;
+    gap: 6px;
+    padding: 8px 14px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    background: var(--surface);
+  }
+  .chips-row::-webkit-scrollbar { display: none; }
+  .chip {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .chip.active {
+    background: var(--primary);
+    color: #fff;
+  }
+  .chip.inactive {
+    background: rgba(108,99,255,.1);
+    color: var(--primary);
+  }
+
+  /* Screenshot grid */
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    padding: 10px;
+    flex: 1;
+    overflow: hidden;
+  }
+  .grid-item {
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+    cursor: pointer;
+  }
+  .grid-item:nth-child(even) { margin-top: 16px; }
+  .grid-img {
+    width: 100%;
+    height: 110px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    position: relative;
+  }
+  .category-badge {
+    position: absolute;
+    top: 6px; left: 6px;
+    background: var(--primary);
+    border-radius: 6px;
+    padding: 2px 6px;
+    font-size: 11px;
+  }
+  .fav-btn {
+    position: absolute;
+    top: 2px; right: 2px;
+    font-size: 14px;
+    cursor: pointer;
+  }
+
+  /* FAB */
+  .fab {
+    position: absolute;
+    bottom: 68px; right: 16px;
+    background: var(--primary);
+    color: #fff;
+    border-radius: 28px;
+    padding: 12px 18px;
+    font-size: 14px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 4px 16px rgba(108,99,255,.5);
+    cursor: pointer;
+  }
+
+  /* Bottom nav */
+  .bottom-nav {
+    height: 60px;
+    background: var(--card);
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    margin-top: auto;
+  }
+  .nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    font-size: 11px;
+    color: var(--text-muted);
+    cursor: pointer;
+  }
+  .nav-item.active { color: var(--primary); }
+  .nav-icon { font-size: 20px; }
+
+  /* ── Onboarding screen ── */
+  .onboarding {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .onboard-emoji { font-size: 72px; margin-bottom: 24px; }
+  .onboard-title {
+    font-size: 24px;
+    font-weight: 800;
+    color: #fff;
+    text-align: center;
+    line-height: 1.2;
+    margin-bottom: 12px;
+  }
+  .onboard-body {
+    font-size: 15px;
+    color: rgba(255,255,255,.75);
+    text-align: center;
+    line-height: 1.5;
+    margin-bottom: 32px;
+  }
+  .dots { display: flex; gap: 6px; margin-bottom: 24px; }
+  .dot {
+    height: 8px;
+    border-radius: 4px;
+    background: rgba(255,255,255,.4);
+    transition: all .2s;
+  }
+  .dot.active { width: 24px; background: #fff; }
+  .dot:not(.active) { width: 8px; }
+  .onboard-btn {
+    width: 100%;
+    padding: 15px;
+    background: #fff;
+    border: none;
+    border-radius: 14px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  /* ── Category tiles ── */
+  .cat-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    padding: 12px;
+    flex: 1;
+  }
+  .cat-tile {
+    border-radius: 14px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    cursor: pointer;
+    min-height: 90px;
+  }
+  .cat-tile-emoji { font-size: 26px; }
+  .cat-tile-name { font-size: 13px; font-weight: 700; color: #fff; }
+  .cat-tile-count { font-size: 11px; color: rgba(255,255,255,.75); }
+
+  /* ── Search screen ── */
+  .search-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #f0f0f5;
+    border-radius: 12px;
+    padding: 10px 14px;
+    margin: 10px 14px;
+    font-size: 14px;
+    color: var(--text-muted);
+  }
+  .search-results {
+    padding: 8px 14px;
+    flex: 1;
+    overflow: hidden;
+  }
+  .result-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .result-thumb {
+    width: 52px; height: 52px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+  .result-info { flex: 1; }
+  .result-title { font-size: 13px; font-weight: 600; color: var(--text-1); }
+  .result-sub { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+  .result-cat {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 6px;
+    color: #fff;
+  }
+
+  /* ── Pro upgrade ── */
+  .pro-hero {
+    background: linear-gradient(135deg, var(--primary), var(--tickets));
+    padding: 28px 20px;
+    text-align: center;
+  }
+  .pro-hero-emoji { font-size: 48px; margin-bottom: 8px; }
+  .pro-hero-title {
+    font-size: 22px;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 4px;
+  }
+  .pro-hero-sub { font-size: 13px; color: rgba(255,255,255,.7); }
+  .pro-features {
+    padding: 12px 16px;
+  }
+  .feature-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 0;
+  }
+  .feature-icon { font-size: 18px; width: 28px; text-align: center; }
+  .feature-text { flex: 1; }
+  .feature-name { font-size: 13px; font-weight: 600; color: var(--text-1); }
+  .feature-desc { font-size: 11px; color: var(--text-muted); }
+  .check { color: var(--success); font-size: 16px; }
+  .plan-cards { padding: 0 16px; }
+  .plan-card {
+    border-radius: 12px;
+    border: 1.5px solid var(--border);
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .plan-card.selected {
+    border-color: var(--primary);
+    background: rgba(108,99,255,.06);
+  }
+  .plan-info { flex: 1; }
+  .plan-name { font-size: 14px; font-weight: 700; color: var(--text-1); }
+  .plan-sub { font-size: 11px; color: var(--text-muted); }
+  .best-tag {
+    background: var(--accent);
+    color: #fff;
+    font-size: 9px;
+    font-weight: 800;
+    padding: 1px 6px;
+    border-radius: 4px;
+    margin-left: 6px;
+  }
+  .plan-price { font-size: 15px; font-weight: 800; color: var(--text-1); }
+  .plan-price-usd { font-size: 10px; color: var(--text-muted); }
+  .radio { font-size: 18px; margin-left: 8px; }
+  .upgrade-btn {
+    margin: 14px 16px 8px;
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    border-radius: 14px;
+    padding: 14px;
+    width: calc(100% - 32px);
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  /* ── Detail screen ── */
+  .detail-appbar {
+    background: #000;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .detail-img {
+    flex: 1;
+    background: #1a1a1a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 80px;
+    position: relative;
+    min-height: 380px;
+  }
+  .detail-mock-content {
+    background: #fff;
+    border-radius: 12px;
+    padding: 18px;
+    width: 82%;
+    box-shadow: 0 4px 20px rgba(0,0,0,.3);
+    text-align: center;
+  }
+  .mock-otp-label {
+    font-size: 11px;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+  .mock-otp {
+    font-size: 32px;
+    font-weight: 900;
+    color: var(--otp);
+    letter-spacing: 6px;
+  }
+  .mock-otp-sub { font-size: 11px; color: #999; margin-top: 6px; }
+  .detail-panel {
+    background: #1a1a1a;
+    padding: 14px 16px 20px;
+  }
+  .detail-cat-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    border: 1.5px solid var(--otp);
+    color: var(--otp);
+    background: rgba(108,99,255,.15);
+    margin-bottom: 8px;
+  }
+  .detail-date { font-size: 12px; color: #666; }
+  .detail-ocr-label { font-size: 11px; color: #888; font-weight: 600; margin-top: 10px; }
+  .detail-ocr-text { font-size: 11px; color: #555; margin-top: 4px; line-height: 1.5; }
+
+  /* ── Scan progress ── */
+  .scan-screen {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px;
+  }
+  .scan-emoji { font-size: 60px; margin-bottom: 20px; }
+  .scan-title { font-size: 18px; font-weight: 700; color: var(--text-1); margin-bottom: 6px; }
+  .scan-sub { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; }
+  .progress-bar {
+    width: 100%;
+    height: 10px;
+    background: var(--border);
+    border-radius: 5px;
+    overflow: hidden;
+    margin-bottom: 8px;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--primary);
+    border-radius: 5px;
+    width: 62%;
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: .7; }
+  }
+  .progress-pct { font-size: 14px; font-weight: 700; color: var(--primary); }
+  .scan-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 20px;
+    justify-content: center;
+  }
+  .scan-chip {
+    padding: 4px 10px;
+    border-radius: 16px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #fff;
+    animation: pop .3s ease-out;
+  }
+  @keyframes pop {
+    from { transform: scale(.6); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  /* ── Section header ── */
+  .section {
+    margin: 48px 0 24px;
+    text-align: center;
+  }
+  .section h2 {
+    font-size: 28px;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 6px;
+  }
+  .section p { font-size: 15px; color: rgba(255,255,255,.5); }
+
+  /* ── Tech stack section ── */
+  .stack-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+    margin: 0 auto;
+    max-width: 800px;
+  }
+  .stack-card {
+    background: rgba(255,255,255,.06);
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 14px;
+    padding: 16px 20px;
+    text-align: center;
+    min-width: 130px;
+  }
+  .stack-icon { font-size: 28px; margin-bottom: 6px; }
+  .stack-name { font-size: 13px; font-weight: 700; color: #fff; }
+  .stack-role { font-size: 11px; color: rgba(255,255,255,.5); margin-top: 2px; }
+
+  /* ── Category colour palette ── */
+  .palette {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+  .palette-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    cursor: default;
+  }
+  .swatch {
+    width: 48px; height: 48px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    box-shadow: 0 4px 12px rgba(0,0,0,.3);
+  }
+  .swatch-label { font-size: 10px; color: rgba(255,255,255,.6); font-weight: 600; }
+
+  /* ── Feature highlight cards ── */
+  .highlights {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    justify-content: center;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  .hl-card {
+    background: rgba(255,255,255,.05);
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 16px;
+    padding: 20px;
+    width: 240px;
+    text-align: center;
+  }
+  .hl-icon { font-size: 32px; margin-bottom: 10px; }
+  .hl-title { font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+  .hl-desc { font-size: 12px; color: rgba(255,255,255,.5); line-height: 1.5; }
+
+  /* ── Footer ── */
+  .footer {
+    text-align: center;
+    margin-top: 60px;
+    color: rgba(255,255,255,.3);
+    font-size: 13px;
+  }
+  .footer a { color: var(--primary); text-decoration: none; }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════ HEADER ═══════════════════════════════════════════ -->
+<div class="page-header">
+  <h1>SnapSort <span>AI</span></h1>
+  <p>AI-powered screenshot organiser &mdash; never lose an OTP, receipt, or note again</p>
+  <div class="badge">Flutter &bull; Android &amp; iOS &bull; On-device AI</div>
+</div>
+
+<!-- ════════════════════════════════════════ SCREEN PREVIEWS ═══════════════════════════════════ -->
+<div class="section">
+  <h2>App Screens</h2>
+  <p>All 6 core screens of the app</p>
+</div>
+
+<div class="screens-row">
+
+  <!-- ─── Screen 1: Onboarding ─── -->
+  <div>
+    <div class="phone">
+      <div class="phone-notch"></div>
+      <div class="phone-screen" style="background:linear-gradient(160deg,#6C63FF,#4A43D0);">
+        <div style="display:flex;justify-content:flex-end;padding:8px 12px;">
+          <span style="color:rgba(255,255,255,.7);font-size:13px;cursor:pointer;">Skip</span>
+        </div>
+        <div class="onboarding">
+          <div class="onboard-emoji">📸</div>
+          <div class="onboard-title">Lost in screenshots?</div>
+          <div class="onboard-body">Thousands of screenshots, zero organisation. OTPs, bills, memes — all mixed up.</div>
+          <div class="dots">
+            <div class="dot active"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+          </div>
+          <button class="onboard-btn" style="color:#6C63FF;">Show me the fix</button>
+        </div>
+      </div>
+    </div>
+    <div class="screen-label">1. Onboarding</div>
+  </div>
+
+  <!-- ─── Screen 2: Home / Gallery ─── -->
+  <div>
+    <div class="phone">
+      <div class="phone-notch"></div>
+      <div class="phone-screen">
+        <!-- AppBar -->
+        <div class="appbar">
+          <div class="appbar-title"><span class="brand">SnapSort</span> AI</div>
+          <div class="appbar-icons">
+            <div class="icon-btn">🔍</div>
+            <div class="icon-btn">⭐</div>
+          </div>
+        </div>
+        <!-- Category chips -->
+        <div class="chips-row">
+          <div class="chip active">All</div>
+          <div class="chip inactive">🔐 OTP</div>
+          <div class="chip inactive">🧾 Receipts</div>
+          <div class="chip inactive">📈 Trading</div>
+          <div class="chip inactive">🛍️ Shopping</div>
+        </div>
+        <!-- Grid -->
+        <div class="grid">
+          <div class="grid-item">
+            <div class="grid-img" style="background:linear-gradient(135deg,#e0e0ff,#c5c3ff);">
+              <div class="category-badge" style="background:var(--otp);">🔐</div>
+              <div class="fav-btn">🤍</div>
+              <div style="text-align:center;padding:8px;">
+                <div style="font-size:11px;color:#888;margin-bottom:4px;">Verification Code</div>
+                <div style="font-size:28px;font-weight:900;color:var(--otp);letter-spacing:4px;">847291</div>
+                <div style="font-size:10px;color:#aaa;">Valid for 10 minutes</div>
+              </div>
+            </div>
+          </div>
+          <div class="grid-item">
+            <div class="grid-img" style="background:linear-gradient(135deg,#e0fff8,#b2f5ea);height:130px;">
+              <div class="category-badge" style="background:var(--receipts);">🧾</div>
+              <div class="fav-btn">❤️</div>
+              <div style="text-align:center;padding:8px;">
+                <div style="font-size:10px;color:#555;font-weight:700;">AMAZON ORDER</div>
+                <div style="font-size:11px;color:#333;margin:4px 0;">MacBook Pro Case</div>
+                <div style="font-size:16px;font-weight:900;color:var(--receipts);">₹1,299</div>
+                <div style="font-size:9px;color:#888;margin-top:2px;">✅ Order Confirmed</div>
+              </div>
+            </div>
+          </div>
+          <div class="grid-item">
+            <div class="grid-img" style="background:linear-gradient(135deg,#e8fff0,#c3f0d5);">
+              <div class="category-badge" style="background:var(--trading);">📈</div>
+              <div class="fav-btn">🤍</div>
+              <div style="text-align:center;padding:8px;">
+                <div style="font-size:9px;color:#555;font-weight:700;">ZERODHA KITE</div>
+                <div style="font-size:10px;color:#333;">RELIANCE</div>
+                <div style="font-size:14px;font-weight:900;color:var(--trading);">+₹3,240</div>
+                <div style="font-size:9px;color:#888;">P&amp;L Today</div>
+              </div>
+            </div>
+          </div>
+          <div class="grid-item">
+            <div class="grid-img" style="background:linear-gradient(135deg,#fff8e0,#ffe9a0);height:130px;">
+              <div class="category-badge" style="background:var(--memes);">😂</div>
+              <div class="fav-btn">🤍</div>
+              <div style="font-size:40px;">😂</div>
+            </div>
+          </div>
+        </div>
+        <!-- FAB -->
+        <div class="fab">✨ Scan</div>
+        <!-- Bottom nav -->
+        <div class="bottom-nav">
+          <div class="nav-item active"><div class="nav-icon">🖼️</div>Gallery</div>
+          <div class="nav-item"><div class="nav-icon">📁</div>Categories</div>
+          <div class="nav-item"><div class="nav-icon">❤️</div>Favorites</div>
+        </div>
+      </div>
+    </div>
+    <div class="screen-label">2. Home Gallery</div>
+  </div>
+
+  <!-- ─── Screen 3: Categories ─── -->
+  <div>
+    <div class="phone">
+      <div class="phone-notch"></div>
+      <div class="phone-screen">
+        <div class="appbar">
+          <div class="appbar-title">Categories</div>
+        </div>
+        <div class="cat-grid">
+          <div class="cat-tile" style="background:linear-gradient(135deg,#6C63FF,#4A43D0);">
+            <div class="cat-tile-emoji">🔐</div>
+            <div>
+              <div class="cat-tile-name">OTP</div>
+              <div class="cat-tile-count">23 screenshots</div>
+            </div>
+          </div>
+          <div class="cat-tile" style="background:linear-gradient(135deg,#4ECDC4,#2bb5ac);">
+            <div class="cat-tile-emoji">🧾</div>
+            <div>
+              <div class="cat-tile-name">Receipts</div>
+              <div class="cat-tile-count">87 screenshots</div>
+            </div>
+          </div>
+          <div class="cat-tile" style="background:linear-gradient(135deg,#06D6A0,#04a87d);">
+            <div class="cat-tile-emoji">📈</div>
+            <div>
+              <div class="cat-tile-name">Trading</div>
+              <div class="cat-tile-count">142 screenshots</div>
+            </div>
+          </div>
+          <div class="cat-tile" style="background:linear-gradient(135deg,#FF6B6B,#d94f4f);">
+            <div class="cat-tile-emoji">💡</div>
+            <div>
+              <div class="cat-tile-name">Bills</div>
+              <div class="cat-tile-count">31 screenshots</div>
+            </div>
+          </div>
+          <div class="cat-tile" style="background:linear-gradient(135deg,#E63946,#b82b37);">
+            <div class="cat-tile-emoji">🛍️</div>
+            <div>
+              <div class="cat-tile-name">Shopping</div>
+              <div class="cat-tile-count">64 screenshots</div>
+            </div>
+          </div>
+          <div class="cat-tile" style="background:linear-gradient(135deg,#F7931A,#c97210);">
+            <div class="cat-tile-emoji">₿</div>
+            <div>
+              <div class="cat-tile-name">Crypto</div>
+              <div class="cat-tile-count">19 screenshots</div>
+            </div>
+          </div>
+        </div>
+        <div class="bottom-nav">
+          <div class="nav-item"><div class="nav-icon">🖼️</div>Gallery</div>
+          <div class="nav-item active"><div class="nav-icon">📁</div>Categories</div>
+          <div class="nav-item"><div class="nav-icon">❤️</div>Favorites</div>
+        </div>
+      </div>
+    </div>
+    <div class="screen-label">3. Categories</div>
+  </div>
+
+  <!-- ─── Screen 4: Search ─── -->
+  <div>
+    <div class="phone">
+      <div class="phone-notch"></div>
+      <div class="phone-screen">
+        <div class="appbar" style="gap:8px;">
+          <div class="search-bar" style="flex:1;margin:0;">
+            <span>🔍</span> zerodha
+            <span style="margin-left:auto;font-size:15px;cursor:pointer;">✕</span>
+          </div>
+          <span style="font-size:13px;color:var(--primary);cursor:pointer;">Cancel</span>
+        </div>
+        <div style="padding:6px 14px;font-size:11px;color:var(--text-muted);">14 results for &ldquo;zerodha&rdquo;</div>
+        <div class="search-results">
+          <div class="result-item">
+            <div class="result-thumb" style="background:rgba(6,214,160,.15);">📈</div>
+            <div class="result-info">
+              <div class="result-title">Zerodha P&L — RELIANCE</div>
+              <div class="result-sub">Today, 3:42 PM</div>
+            </div>
+            <div class="result-cat" style="background:var(--trading);">Trading</div>
+          </div>
+          <div class="result-item">
+            <div class="result-thumb" style="background:rgba(6,214,160,.15);">📊</div>
+            <div class="result-info">
+              <div class="result-title">Kite — Holdings View</div>
+              <div class="result-sub">Yesterday, 9:15 AM</div>
+            </div>
+            <div class="result-cat" style="background:var(--trading);">Trading</div>
+          </div>
+          <div class="result-item">
+            <div class="result-thumb" style="background:rgba(6,214,160,.15);">💰</div>
+            <div class="result-info">
+              <div class="result-title">Margin Used — Intraday</div>
+              <div class="result-sub">May 12, 11:30 AM</div>
+            </div>
+            <div class="result-cat" style="background:var(--trading);">Trading</div>
+          </div>
+          <div class="result-item">
+            <div class="result-thumb" style="background:rgba(17,138,178,.15);">🏦</div>
+            <div class="result-info">
+              <div class="result-title">Zerodha Ledger Transfer</div>
+              <div class="result-sub">May 10, 2:00 PM</div>
+            </div>
+            <div class="result-cat" style="background:var(--bank);">Bank</div>
+          </div>
+        </div>
+        <div class="bottom-nav">
+          <div class="nav-item"><div class="nav-icon">🖼️</div>Gallery</div>
+          <div class="nav-item"><div class="nav-icon">📁</div>Categories</div>
+          <div class="nav-item"><div class="nav-icon">❤️</div>Favorites</div>
+        </div>
+      </div>
+    </div>
+    <div class="screen-label">4. Search (FTS)</div>
+  </div>
+
+  <!-- ─── Screen 5: Detail view ─── -->
+  <div>
+    <div class="phone">
+      <div class="phone-notch"></div>
+      <div class="phone-screen" style="background:#000;">
+        <div class="detail-appbar">
+          <span style="color:#fff;font-size:20px;cursor:pointer;">←</span>
+          <div style="display:flex;gap:8px;">
+            <span style="color:red;font-size:20px;cursor:pointer;">♥</span>
+            <span style="color:#fff;font-size:20px;cursor:pointer;">⬆</span>
+          </div>
+        </div>
+        <div class="detail-img">
+          <div class="detail-mock-content">
+            <div class="mock-otp-label">Your verification code</div>
+            <div class="mock-otp">847291</div>
+            <div class="mock-otp-sub">Expires in 9 minutes. Do not share.</div>
+            <div style="margin-top:10px;font-size:11px;color:#aaa;">Sent by HDFC Bank</div>
+          </div>
+        </div>
+        <div class="detail-panel">
+          <div class="detail-cat-badge">🔐 OTP <span style="font-size:10px;margin-left:4px;">✏️</span></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div class="detail-date">May 14, 2026 &bull; 4:31 PM</div>
+            <div style="font-size:11px;color:#555;">97% match</div>
+          </div>
+          <div class="detail-ocr-label">Detected text</div>
+          <div class="detail-ocr-text">Your HDFC Bank verification code is 847291. Valid for 10 minutes. Do not share with anyone.</div>
+        </div>
+      </div>
+    </div>
+    <div class="screen-label">5. Detail + OCR</div>
+  </div>
+
+  <!-- ─── Screen 6: Pro Upgrade ─── -->
+  <div>
+    <div class="phone">
+      <div class="phone-notch"></div>
+      <div class="phone-screen">
+        <div class="pro-hero">
+          <div class="pro-hero-emoji">💫</div>
+          <div class="pro-hero-title">SnapSort Pro</div>
+          <div class="pro-hero-sub">Unlimited &bull; Cloud backup &bull; Export</div>
+        </div>
+        <div class="pro-features">
+          <div class="feature-row"><span class="feature-icon">📸</span><div class="feature-text"><div class="feature-name">Unlimited screenshots</div><div class="feature-desc">No 500-screenshot cap</div></div><span class="check">✔</span></div>
+          <div class="feature-row"><span class="feature-icon">🤖</span><div class="feature-text"><div class="feature-name">AI auto-sort</div><div class="feature-desc">11 smart categories</div></div><span class="check">✔</span></div>
+          <div class="feature-row"><span class="feature-icon">☁️</span><div class="feature-text"><div class="feature-name">Cloud backup</div><div class="feature-desc">Access from any device</div></div><span class="check">✔</span></div>
+          <div class="feature-row"><span class="feature-icon">📤</span><div class="feature-text"><div class="feature-name">Export to PDF / ZIP</div><div class="feature-desc">Share or archive anytime</div></div><span class="check">✔</span></div>
+        </div>
+        <div class="plan-cards">
+          <div class="plan-card">
+            <div class="plan-info"><div class="plan-name">Monthly</div><div class="plan-sub">Cancel anytime</div></div>
+            <div style="text-align:right;"><div class="plan-price">₹99/mo</div><div class="plan-price-usd">$1.99/mo</div></div>
+            <div class="radio">⚪</div>
+          </div>
+          <div class="plan-card selected">
+            <div class="plan-info"><div class="plan-name">Yearly <span class="best-tag">BEST</span></div><div class="plan-sub">Save 33%</div></div>
+            <div style="text-align:right;"><div class="plan-price">₹799/yr</div><div class="plan-price-usd">$14.99/yr</div></div>
+            <div class="radio" style="color:var(--primary);">🔵</div>
+          </div>
+        </div>
+        <button class="upgrade-btn">Upgrade to Pro</button>
+      </div>
+    </div>
+    <div class="screen-label">6. Pro Upgrade</div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════ SCAN PROGRESS SCREEN ══════════════════════════════════ -->
+<div class="section" style="margin-top:60px;">
+  <h2>AI Scanning in Action</h2>
+  <p>Background processing with real-time progress</p>
+</div>
+<div style="display:flex;justify-content:center;">
+  <div>
+    <div class="phone">
+      <div class="phone-notch"></div>
+      <div class="phone-screen">
+        <div class="appbar">
+          <div class="appbar-title"><span class="brand">SnapSort</span> AI</div>
+        </div>
+        <div class="scan-screen">
+          <div class="scan-emoji">🤖</div>
+          <div class="scan-title">Scanning your screenshots</div>
+          <div class="scan-sub">310 of 500 processed</div>
+          <div class="progress-bar"><div class="progress-fill"></div></div>
+          <div class="progress-pct">62%</div>
+          <div class="scan-chips">
+            <div class="scan-chip" style="background:var(--otp);">🔐 OTP ×23</div>
+            <div class="scan-chip" style="background:var(--receipts);">🧾 Receipts ×87</div>
+            <div class="scan-chip" style="background:var(--trading);">📈 Trading ×142</div>
+            <div class="scan-chip" style="background:var(--shopping);">🛍️ Shopping ×58</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="screen-label">AI Scanning Progress</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════ CATEGORY PALETTE ══════════════════════════════════ -->
+<div class="section">
+  <h2>11 Smart Categories</h2>
+  <p>Each with a distinct colour, icon, and AI keyword model</p>
+</div>
+<div class="palette">
+  <div class="palette-item"><div class="swatch" style="background:var(--otp);">🔐</div><div class="swatch-label">OTP</div></div>
+  <div class="palette-item"><div class="swatch" style="background:var(--bills);">💡</div><div class="swatch-label">Bills</div></div>
+  <div class="palette-item"><div class="swatch" style="background:var(--receipts);">🧾</div><div class="swatch-label">Receipts</div></div>
+  <div class="palette-item"><div class="swatch" style="background:var(--memes);">😂</div><div class="swatch-label">Memes</div></div>
+  <div class="palette-item"><div class="swatch" style="background:var(--notes);">📝</div><div class="swatch-label">Notes</div></div>
+  <div class="palette-item"><div class="swatch" style="background:var(--trading);">📈</div><div class="swatch-label">Trading</div></div>
+  <div class="palette-item"><div class="swatch" style="background:var(--bank);">🏦</div><div class="swatch-label">Bank Info</div></div>
+  <div class="palette-item"><div class="swatch" style="background:var(--tickets);">🎫</div><div class="swatch-label">Tickets</div></div>
+  <div class="palette-item"><div class="swatch" style="background:var(--shopping);">🛍️</div><div class="swatch-label">Shopping</div></div>
+  <div class="palette-item"><div class="swatch" style="background:var(--crypto);">₿</div><div class="swatch-label">Crypto</div></div>
+  <div class="palette-item"><div class="swatch" style="background:var(--misc);">📁</div><div class="swatch-label">Misc</div></div>
+</div>
+
+<!-- ══════════════════════════════════════ FEATURE HIGHLIGHTS ═════════════════════════════════ -->
+<div class="section">
+  <h2>Key Features</h2>
+  <p>What makes SnapSort AI different</p>
+</div>
+<div class="highlights">
+  <div class="hl-card"><div class="hl-icon">🔒</div><div class="hl-title">100% On-Device</div><div class="hl-desc">Google ML Kit runs locally. Your screenshots never leave your phone without consent.</div></div>
+  <div class="hl-card"><div class="hl-icon">⚡</div><div class="hl-title">FTS5 Search</div><div class="hl-desc">Full-text search over OCR-extracted text. Find any screenshot in milliseconds.</div></div>
+  <div class="hl-card"><div class="hl-icon">🤖</div><div class="hl-title">Smart OCR</div><div class="hl-desc">Reads the text in every screenshot and classifies it using keyword + pattern scoring.</div></div>
+  <div class="hl-card"><div class="hl-icon">📝</div><div class="hl-title">User Corrections</div><div class="hl-desc">Tap the category badge to fix a wrong label. Corrections train a feedback loop.</div></div>
+  <div class="hl-card"><div class="hl-icon">💜</div><div class="hl-title">Material 3</div><div class="hl-desc">Full light + dark mode support with dynamic colours and smooth animations.</div></div>
+  <div class="hl-card"><div class="hl-icon">💰</div><div class="hl-title">Freemium</div><div class="hl-desc">Free up to 500 screenshots. Pro at ₹99/mo or ₹799/year with cloud backup.</div></div>
+</div>
+
+<!-- ══════════════════════════════════════ TECH STACK ═════════════════════════════════════════ -->
+<div class="section">
+  <h2>Tech Stack</h2>
+  <p>Production-grade choices for a real Play Store + App Store launch</p>
+</div>
+<div class="stack-grid">
+  <div class="stack-card"><div class="stack-icon">💙</div><div class="stack-name">Flutter 3</div><div class="stack-role">Cross-platform UI</div></div>
+  <div class="stack-card"><div class="stack-icon">🧊</div><div class="stack-name">flutter_bloc</div><div class="stack-role">State management</div></div>
+  <div class="stack-card"><div class="stack-icon">🗄️</div><div class="stack-name">SQLite + FTS5</div><div class="stack-role">Local DB + search</div></div>
+  <div class="stack-card"><div class="stack-icon">👁️</div><div class="stack-name">ML Kit OCR</div><div class="stack-role">On-device text recognition</div></div>
+  <div class="stack-card"><div class="stack-icon">🖼️</div><div class="stack-name">photo_manager</div><div class="stack-role">Gallery access</div></div>
+  <div class="stack-card"><div class="stack-icon">💾</div><div class="stack-name">shared_prefs</div><div class="stack-role">Settings + Pro status</div></div>
+</div>
+
+<div class="footer">
+  <p>SnapSort AI &mdash; Built with Flutter &bull; Branch: <code>claude/ai-screenshot-organizer-q0akt</code></p>
+  <p style="margin-top:6px;">Repo: <a href="https://github.com/mukeshkd097/ai_affiliate_agent">mukeshkd097/ai_affiliate_agent</a></p>
+</div>
+
+</body>
+</html>
